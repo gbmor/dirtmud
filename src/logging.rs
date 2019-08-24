@@ -38,3 +38,21 @@ pub fn init() {
         ]
     ).expect("Unable to initialize logging");
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    use log::info;
+
+    #[test]
+    fn init_logs() {
+        init();
+
+        info!("TEST LOG MESSAGE");
+
+        let logfile = fs::read_to_string("/tmp/dirtmud.log").unwrap();
+
+        assert!(logfile.contains("TEST LOG MESSAGE"));
+    }
+}
