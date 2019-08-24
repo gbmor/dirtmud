@@ -40,7 +40,7 @@ pub fn init() {
 }
 
 #[cfg(test)]
-mod test {
+mod tests {
     use super::*;
 
     use log::info;

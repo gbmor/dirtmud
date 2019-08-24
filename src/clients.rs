@@ -50,13 +50,9 @@ fn greet(mut strm: TcpStream, _engine: mpsc::Sender<String>) -> Result<(), io::E
     let rdr = strm.try_clone().unwrap();
     let mut rdr = BufReader::new(rdr);
 
-    let greetz = fs::read_to_string("assets/greet.txt")
-        .unwrap_or_else(|err| {
-            error!("{}", err);
-            panic!("{}", err);
-        });
-
-    strm.write_all(&greetz.into_bytes())?;
+    strm.write_all(
+        &pull_greet_asset().into_bytes()
+    )?;
     
     let prompt = "Username: ".to_string();
     strm.write_all(&prompt.into_bytes())?;
@@ -76,4 +72,23 @@ fn greet(mut strm: TcpStream, _engine: mpsc::Sender<String>) -> Result<(), io::E
     strm.write_all(&output.into_bytes())?;
 
     Ok(())
+}
+
+fn pull_greet_asset() -> String {
+    fs::read_to_string("assets/greet.txt")
+        .unwrap_or_else(|err| {
+            error!("{}", err);
+            panic!("{}", err);
+        })
+}
+
+#[cfg(test)]
+mod tests {
+   use super::*;
+
+   #[test]
+   fn test_greet() {
+        let greet = pull_greet_asset();
+        assert!(greet.contains("dirtMUD"));
+   }
 }
