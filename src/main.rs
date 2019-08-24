@@ -14,6 +14,7 @@ use log::{
     info,
 };
 
+mod auth;
 mod clients;
 mod engine;
 mod logging;
