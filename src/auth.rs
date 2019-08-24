@@ -7,7 +7,7 @@ use std::{
     sync::mpsc,
 };
 
-pub fn user_pass(user: &str, pass: &str, engine: mpsc::Sender<String>) -> bool {
+pub fn user_pass(_user: &str, _pass: &[u8], _engine: mpsc::Sender<String>) -> bool {
 
     true
 }
