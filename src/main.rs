@@ -4,6 +4,7 @@
 //
 
 use std::{
+    io,
     sync::mpsc,
 };
 
@@ -12,7 +13,7 @@ use chrono::prelude::*;
 mod clients;
 mod engine;
 
-fn main() {
+fn main() -> Result<(), io::Error> {
     let thetime = Utc::now();
     println!();
     println!("dirtmud 0.1-dev");
@@ -20,5 +21,9 @@ fn main() {
 
     let (tx, rx) = mpsc::channel::<String>();
     engine::spawn_worker(rx);
-    clients::spawn_worker("0.0.0.0:56543", tx).unwrap();
+
+    // This will block
+    clients::spawn_worker("0.0.0.0:56543", tx)?;
+
+    Ok(())
 }
