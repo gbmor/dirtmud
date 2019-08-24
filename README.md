@@ -2,3 +2,4 @@
 
 One of my dreams has been to make a MUD engine. Might as well do it now.
 
+[Development Plan](https://github.com/gbmor/dirtmud/blob/master/PLAN.md)
