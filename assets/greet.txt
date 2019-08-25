@@ -15,3 +15,7 @@
                       (c)2019 Ben Morrison
 
 
+                          [1] Login
+                          [2] Register
+                          [3] Exit
+
