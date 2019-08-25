@@ -5,13 +5,15 @@
 
 use std::{
     io,
+    process,
     sync::mpsc,
 };
 
 use chrono::prelude::*;
-
+use ctrlc;
 use log::{
     info,
+    warn,
 };
 
 mod auth;
@@ -22,6 +24,11 @@ mod logging;
 
 fn main() -> Result<(), io::Error> {
     logging::init();
+
+    ctrlc::set_handler(move || {
+        warn!("^C / SIGINT caught. Exiting ...");
+        process::exit(0);
+    }).expect("Could not set up SIGINT handler.");
 
     let thetime = Utc::now();
     println!();

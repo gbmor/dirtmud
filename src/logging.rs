@@ -17,7 +17,7 @@ pub fn init() {
     // fresh log file.
     if fs::metadata(FILE).is_ok() {
         let mut newpath = FILE.to_string();
-        let time = Utc::now().to_string();
+        let time = Utc::now().to_rfc3339();
         newpath.push_str(".");
         newpath.push_str(&time);
         fs::rename(FILE, newpath).unwrap();

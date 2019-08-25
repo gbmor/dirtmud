@@ -28,7 +28,6 @@ use zeroize::Zeroize;
 
 use crate::{
     auth,
-    json_local,
 };
 
 pub fn spawn_worker(ip: &str, tx: mpsc::Sender<String>) -> Result<(), io::Error> {

@@ -3,11 +3,10 @@
 // See LICENSE file for detailed license information.
 //
 
-use std::{
-    sync::mpsc,
-};
-
 use bcrypt;
+use log::{
+    warn,
+};
 
 use crate::json_local;
 
@@ -19,6 +18,9 @@ pub fn user_pass(user: &str, pass: &[u8]) -> bool {
 
     match bcrypt::verify(&pass, &stored_hash) {
         Ok(resp) => return resp,
-        Err(err) => return false,
+        Err(_) => {
+            warn!("Invalid auth for user: {}", user);
+            return false
+        }
     }
 }
