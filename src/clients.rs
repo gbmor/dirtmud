@@ -26,6 +26,11 @@ use log::{
 
 use zeroize::Zeroize;
 
+use crate::{
+    auth,
+    json_local,
+};
+
 pub fn spawn_worker(ip: &str, tx: mpsc::Sender<String>) -> Result<(), io::Error> {
     match TcpListener::bind(ip) {
         Ok(lstnr) => {
@@ -66,10 +71,14 @@ fn greet(mut strm: TcpStream, _engine: mpsc::Sender<String>) -> Result<(), io::E
     rdr.read_line(&mut pass)?;
     pass = pass.trim().to_string();
     
-    let output = format!("\nYour user: {}\nYour pass: {}\n", user, pass);
     let mut pass_b = pass.into_bytes();
+    let auth = auth::user_pass(&user, &pass_b);
     pass_b.zeroize();
-    strm.write_all(&output.into_bytes())?;
+
+    match auth {
+        true => strm.write_all("true".to_string().into_bytes().as_ref())?,
+        false => strm.write_all("false".to_string().into_bytes().as_ref())?,
+    }
 
     Ok(())
 }

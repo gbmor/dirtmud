@@ -7,7 +7,18 @@ use std::{
     sync::mpsc,
 };
 
-pub fn user_pass(_user: &str, _pass: &[u8], _engine: mpsc::Sender<String>) -> bool {
+use bcrypt;
 
-    true
+use crate::json_local;
+
+pub fn user_pass(user: &str, pass: &[u8]) -> bool {
+    let userdata = json_local::pull_user_data();
+    let stored_hash = json::stringify(userdata[
+        &format!("{}.hash", user)
+    ].clone()).to_string();
+
+    match bcrypt::verify(&pass, &stored_hash) {
+        Ok(resp) => return resp,
+        Err(err) => return false,
+    }
 }

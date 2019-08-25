@@ -17,6 +17,7 @@ use log::{
 mod auth;
 mod clients;
 mod engine;
+mod json_local;
 mod logging;
 
 fn main() -> Result<(), io::Error> {
