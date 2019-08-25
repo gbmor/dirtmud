@@ -63,7 +63,6 @@ fn greet(mut strm: TcpStream, _engine: mpsc::Sender<String>) -> Result<(), io::E
             }
         }
     }
-    Ok(())
 }
 
 fn pull_greet_asset() -> String {

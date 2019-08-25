@@ -19,3 +19,18 @@ pub fn pull_user_data() -> json::JsonValue {
         Err(err) => panic!("{}", err),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn user_data() {
+        let lhs = pull_user_data();
+        let lhs = lhs["testuser"]["hash"].clone();
+
+        let rhs = "$2b$09$PyndVwMZKX9qYUGn/tXHv.Wfi62r.7Dra7j3WA21wlIyfTVROYPFG";
+
+        assert_eq!(lhs, rhs);
+    }
+}
