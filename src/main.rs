@@ -3,19 +3,11 @@
 // See LICENSE file for detailed license information.
 //
 
-use std::{
-    io,
-    process,
-    sync::mpsc,
-    thread,
-};
+use std::{io, process, sync::mpsc, thread};
 
 use chrono::prelude::*;
 use ctrlc;
-use log::{
-    info,
-    warn,
-};
+use log::{info, warn};
 
 mod auth;
 mod clients;
@@ -30,7 +22,8 @@ fn main() -> Result<(), io::Error> {
     ctrlc::set_handler(move || {
         warn!("^C / SIGINT caught. Exiting ...");
         process::exit(0);
-    }).expect("Could not set up SIGINT handler.");
+    })
+    .expect("Could not set up SIGINT handler.");
 
     let thetime = Utc::now();
     println!();

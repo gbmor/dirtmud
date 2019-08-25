@@ -12,6 +12,7 @@ use log::{info, warn};
 
 use crate::json_local;
 
+#[derive(Debug)]
 struct Userdata {
     cache: RwLock<json::JsonValue>,
 }
