@@ -7,6 +7,7 @@ use std::{
     io,
     process,
     sync::mpsc,
+    thread,
 };
 
 use chrono::prelude::*;
@@ -24,6 +25,7 @@ mod logging;
 
 fn main() -> Result<(), io::Error> {
     logging::init();
+    thread::spawn(move || auth::watch_userdata());
 
     ctrlc::set_handler(move || {
         warn!("^C / SIGINT caught. Exiting ...");

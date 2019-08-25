@@ -11,11 +11,15 @@ use std::{
     thread,
 };
 
+use lazy_static::lazy_static;
 use log::{error, info};
 use zeroize::Zeroize;
 
 use crate::auth;
 
+lazy_static!{
+    static ref CLEAR_SCREEN: String = format!("{}[2J", 27 as char);
+}
 
 pub fn spawn_worker(ip: &str, tx: mpsc::Sender<String>) -> Result<(), io::Error> {
     match TcpListener::bind(ip) {
@@ -38,8 +42,6 @@ pub fn spawn_worker(ip: &str, tx: mpsc::Sender<String>) -> Result<(), io::Error>
 }
 
 fn greet(mut strm: TcpStream, _engine: mpsc::Sender<String>) -> Result<(), io::Error> {
-    let CLEAR_SCREEN: String = format!("{}[2J", 27 as char);
-
     loop {
         strm.write_all(CLEAR_SCREEN.clone().into_bytes().as_ref())?;
         strm.write_all(&pull_greet_asset().into_bytes())?;
