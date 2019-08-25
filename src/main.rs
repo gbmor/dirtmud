@@ -17,7 +17,7 @@ mod logging;
 
 fn main() -> Result<(), io::Error> {
     logging::init();
-    thread::spawn(move || auth::watch_userdata());
+    thread::spawn(auth::watch_userdata);
 
     ctrlc::set_handler(move || {
         warn!("^C / SIGINT caught. Exiting ...");

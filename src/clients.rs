@@ -17,7 +17,7 @@ use zeroize::Zeroize;
 
 use crate::auth;
 
-lazy_static!{
+lazy_static! {
     static ref CLEAR_SCREEN: String = format!("{}[2J", 27 as char);
 }
 
@@ -60,9 +60,7 @@ fn greet(mut strm: TcpStream, _engine: mpsc::Sender<String>) -> Result<(), io::E
             }
             "2" => continue,
             "3" => return Ok(()),
-            _ => {
-                continue
-            }
+            _ => continue,
         }
     }
 }
@@ -91,13 +89,18 @@ fn login(strm: &mut TcpStream) -> Result<(), io::Error> {
     pass = pass.trim().to_string();
 
     let mut pass_b = pass.into_bytes();
-    let auth = auth::user_pass(&user, &pass_b);
+    let authed = auth::user_pass(&user, &pass_b);
     pass_b.zeroize();
 
-    match auth {
-        true => strm.write_all("true".to_string().into_bytes().as_ref()),
-        false => strm.write_all("false".to_string().into_bytes().as_ref()),
+    if authed {
+        strm.write_all("true".to_string().into_bytes().as_ref())
+            .unwrap();
+    } else {
+        strm.write_all("false".to_string().into_bytes().as_ref())
+            .unwrap();
     }
+
+    Ok(())
 }
 
 #[cfg(test)]

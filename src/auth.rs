@@ -56,11 +56,11 @@ pub fn user_pass(user: &str, pass: &[u8]) -> bool {
     match bcrypt::verify(&pass, &stored_hash) {
         Ok(resp) => {
             info!("User logged in: {}", user);
-            return resp;
+            resp
         }
         Err(_) => {
             warn!("Invalid auth for user: {}", user);
-            return false;
+            false
         }
     }
 }
