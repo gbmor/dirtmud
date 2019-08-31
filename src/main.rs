@@ -6,6 +6,7 @@
 use std::{io, process, sync::mpsc, thread};
 
 use chrono::prelude::*;
+use clap;
 use ctrlc;
 use log::{info, warn};
 
@@ -14,6 +15,8 @@ mod clients;
 mod engine;
 mod json_local;
 mod logging;
+
+const VERS: &str = clap::crate_version!();
 
 fn main() -> Result<(), io::Error> {
     logging::init();
@@ -27,9 +30,9 @@ fn main() -> Result<(), io::Error> {
 
     let thetime = Utc::now();
     println!();
-    println!("dirtmud 0.1-dev");
+    println!("dirtmud v{}", VERS);
 
-    info!("dirtmud 0.1-dev");
+    info!("dirtmud v{}", VERS);
     info!("Startup at: {}", thetime.to_rfc2822());
 
     info!("Spawning engine worker");
