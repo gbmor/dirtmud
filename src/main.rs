@@ -41,7 +41,7 @@ fn main() -> Result<(), io::Error> {
 
     // This will block
     info!("Spawning client worker");
-    clients::spawn_worker("0.0.0.0:56543", tx)?;
+    clients::worker("0.0.0.0:56543", tx)?;
 
     Ok(())
 }

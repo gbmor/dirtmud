@@ -8,11 +8,11 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
     sync::mpsc,
-    thread,
 };
 
 use lazy_static::lazy_static;
-use log::{error, info};
+use log;
+use may::coroutine;
 use zeroize::Zeroize;
 
 use crate::auth;
@@ -23,19 +23,19 @@ lazy_static! {
     static ref CLEAR_SCREEN: String = format!("{}[2J", 27 as char);
 }
 
-pub fn spawn_worker(ip: &str, tx: mpsc::Sender<String>) -> Result<()> {
+pub fn worker(ip: &str, tx: mpsc::Sender<String>) -> Result<()> {
     match TcpListener::bind(ip) {
         Ok(lstnr) => {
-            for conn in lstnr.incoming() {
-                match conn {
-                    Ok(strm) => {
-                        info!("New connection: {:?}", strm.peer_addr().unwrap());
-                        let txc = tx.clone();
-                        thread::spawn(move || greet(strm, txc).unwrap());
+            lstnr.incoming().for_each(|conn| match conn {
+                Ok(strm) => {
+                    log::info!("New connection: {:?}", strm.peer_addr().unwrap());
+                    let txc = tx.clone();
+                    unsafe {
+                        coroutine::spawn(|| greet(strm, txc).unwrap());
                     }
-                    Err(err) => eprintln!("{}", err),
                 }
-            }
+                Err(err) => log::error!("Error accepting connection: {}", err),
+            });
         }
         Err(err) => return Err(err),
     }
@@ -48,7 +48,7 @@ fn greet(mut strm: TcpStream, _engine: mpsc::Sender<String>) -> Result<()> {
         strm.write_all(CLEAR_SCREEN.clone().into_bytes().as_ref())?;
         strm.write_all(&pull_greet_asset().into_bytes())?;
 
-        let rdr = strm.try_clone().unwrap();
+        let rdr = strm.try_clone()?;
         let mut rdr = BufReader::new(rdr);
 
         strm.write_all("\t\tSelection: ".to_string().into_bytes().as_ref())?;
@@ -71,7 +71,7 @@ fn greet(mut strm: TcpStream, _engine: mpsc::Sender<String>) -> Result<()> {
 
 fn pull_greet_asset() -> String {
     fs::read_to_string("assets/greet.txt").unwrap_or_else(|err| {
-        error!("{}", err);
+        log::error!("{}", err);
         panic!("{}", err);
     })
 }
