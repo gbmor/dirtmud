@@ -17,11 +17,13 @@ use zeroize::Zeroize;
 
 use crate::auth;
 
+type Result<T> = std::result::Result<T, io::Error>;
+
 lazy_static! {
     static ref CLEAR_SCREEN: String = format!("{}[2J", 27 as char);
 }
 
-pub fn spawn_worker(ip: &str, tx: mpsc::Sender<String>) -> Result<(), io::Error> {
+pub fn spawn_worker(ip: &str, tx: mpsc::Sender<String>) -> Result<()> {
     match TcpListener::bind(ip) {
         Ok(lstnr) => {
             for conn in lstnr.incoming() {
@@ -41,7 +43,7 @@ pub fn spawn_worker(ip: &str, tx: mpsc::Sender<String>) -> Result<(), io::Error>
     Ok(())
 }
 
-fn greet(mut strm: TcpStream, _engine: mpsc::Sender<String>) -> Result<(), io::Error> {
+fn greet(mut strm: TcpStream, _engine: mpsc::Sender<String>) -> Result<()> {
     loop {
         strm.write_all(CLEAR_SCREEN.clone().into_bytes().as_ref())?;
         strm.write_all(&pull_greet_asset().into_bytes())?;
@@ -72,8 +74,8 @@ fn pull_greet_asset() -> String {
     })
 }
 
-fn login(strm: &mut TcpStream) -> Result<(), io::Error> {
-    let rdr = strm.try_clone().unwrap();
+fn login(strm: &mut TcpStream) -> Result<()> {
+    let rdr = strm.try_clone()?;
     let mut rdr = BufReader::new(rdr);
 
     let prompt = "Username: ".to_string();
@@ -100,6 +102,24 @@ fn login(strm: &mut TcpStream) -> Result<(), io::Error> {
             .unwrap();
     }
 
+    Ok(())
+}
+
+fn register(strm: &mut TcpStream) -> Result<()> {
+    let rdr = strm.try_clone()?;
+    let mut rdr = BufReader::new(rdr);
+
+    let prompt = "Desired Username: ".to_string();
+    strm.write_all(prompt.into_bytes().as_ref())?;
+    let mut user = String::new();
+    rdr.read_line(&mut user)?;
+    let user = user.trim();
+
+    let prompt = "Password: ".to_string();
+    strm.write_all(prompt.into_bytes().as_ref())?;
+    let mut pass = String::new();
+    rdr.read_line(&mut pass)?;
+    let pass = pass.trim();
     Ok(())
 }
 
