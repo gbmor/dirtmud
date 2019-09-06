@@ -60,7 +60,9 @@ fn greet(mut strm: TcpStream, _engine: mpsc::Sender<String>) -> Result<()> {
             "1" => {
                 login(&mut strm)?;
             }
-            "2" => continue,
+            "2" => {
+                register(&mut strm)?;
+            }
             "3" => return Ok(()),
             _ => continue,
         }
@@ -119,7 +121,28 @@ fn register(strm: &mut TcpStream) -> Result<()> {
     strm.write_all(prompt.into_bytes().as_ref())?;
     let mut pass = String::new();
     rdr.read_line(&mut pass)?;
-    let pass = pass.trim();
+    let pass = pass.trim().bytes().collect::<Vec<u8>>();
+
+    let pass = bcrypt::hash(&pass, 12).unwrap();
+
+    let json = format!(
+        "
+{{
+        \"hash\": \"{}\",
+        \"char\": \"\"
+}}",
+        pass,
+    );
+    let new_json = json::parse(&json).unwrap();
+    let current_users = fs::read_to_string("assets/data/users.json").unwrap();
+
+    let mut current_users = json::parse(&current_users).unwrap();
+    current_users[user] = new_json;
+    let current_users = current_users.dump().bytes().collect::<Vec<u8>>();
+
+    let mut file = fs::File::create("assets/data/users.json")?;
+    file.write_all(&current_users)?;
+
     Ok(())
 }
 
