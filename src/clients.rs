@@ -123,7 +123,7 @@ fn register(strm: &mut TcpStream) -> Result<()> {
     rdr.read_line(&mut pass)?;
     let pass = pass.trim().bytes().collect::<Vec<u8>>();
 
-    let pass = bcrypt::hash(&pass, 12).unwrap();
+    let mut pass = bcrypt::hash(&pass, 12).unwrap();
 
     let json = format!(
         "
@@ -138,10 +138,13 @@ fn register(strm: &mut TcpStream) -> Result<()> {
 
     let mut current_users = json::parse(&current_users).unwrap();
     current_users[user] = new_json;
-    let current_users = current_users.dump().bytes().collect::<Vec<u8>>();
+    let mut current_users = current_users.dump().bytes().collect::<Vec<u8>>();
 
     let mut file = fs::File::create("assets/data/users.json")?;
     file.write_all(&current_users)?;
+
+    pass.zeroize();
+    current_users.zeroize();
 
     Ok(())
 }
