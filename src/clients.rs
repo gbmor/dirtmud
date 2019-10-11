@@ -126,11 +126,11 @@ fn register(strm: &mut TcpStream) -> Result<()> {
     let mut pass = bcrypt::hash(&pass, 12).unwrap();
 
     let json = format!(
-        "
+        r#"
 {{
-        \"hash\": \"{}\",
-        \"char\": \"\"
-}}",
+        "hash": "{}",
+        "char": ""
+}}"#,
         pass,
     );
     let new_json = json::parse(&json).unwrap();
