@@ -8,11 +8,11 @@ use std::{
     io::{BufRead, BufReader, Write},
     net::{TcpListener, TcpStream},
     sync::mpsc,
+    thread,
 };
 
 use lazy_static::lazy_static;
 use log;
-use may::coroutine;
 use zeroize::Zeroize;
 
 use crate::auth;
@@ -30,9 +30,7 @@ pub fn worker(ip: &str, tx: mpsc::Sender<String>) -> Result<()> {
                 Ok(strm) => {
                     log::info!("New connection: {:?}", strm.peer_addr().unwrap());
                     let txc = tx.clone();
-                    unsafe {
-                        coroutine::spawn(|| greet(strm, txc).unwrap());
-                    }
+                    thread::spawn(|| greet(strm, txc).unwrap());
                 }
                 Err(err) => log::error!("Error accepting connection: {}", err),
             });
